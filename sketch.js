@@ -8,11 +8,13 @@ let bezierCurCP = [];
 let linearCP = [];
 
 let lines = [];
+let lineIDStack = []; // This stack approach is so overkill lmao
 
 let mouseMath;
 let mouseState;
 let selected = false;
 let selectedCP = false;
+let oldSelectedCP = false;
 let mousePresPos;
 
 let expressions = new Map();
@@ -30,6 +32,7 @@ let tool = "bezier";
 class Line {
     constructor(type, id, ...args) {
         this.type = type;
+
         this.id = id;
         if (type === "bezier") {
             this.cp = [args[0], args[1], args[2], args[3]];
@@ -55,6 +58,14 @@ class Line {
             else {
                 setExp({ id: `linear${this.id}`, latex: Dline(...this.cp), color: "#000000"});
             }
+        }
+    }
+    delete() {
+        if (this.type === "bezier") {
+            setExp({ id: `bezier${this.id}`, latex: "", color: "#000000"});
+        }
+        if (this.type === "linear") {
+            setExp({ id: `linear${this.id}`, latex: "", color: "#000000"});
         }
     }
 }
@@ -120,7 +131,6 @@ function draw() {
         if ( linearCP.length ) {
             setExp({  id: `linearLine`, latex: Dline(linearCP[0], linearCP[1]) })
         }
-
     }
     else if (mouseState === "selectCP") {
         selected.cp[selectedCP] = mouseMath;
@@ -135,6 +145,19 @@ function draw() {
 
         displayCP();
         displayLines();
+    }
+    else if (mouseState === "selectLine") {
+        for (let i = 0; i < selected.cp.length; i++) {
+            selected.cp[i] = cOp((x, y) => (x+y), oldSelectedCP[i], cOp( (m,n) => (m-n), mouseMath, mousePresPos ));
+        }
+        if (selected.type === "bezier") {
+            setExp({ id: `bezierPrevCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
+            setExp({ id: `bezierCurCP`, latex: `[${Dpoint(selected.cp[2])}, ${Dpoint(selected.cp[3])} ]` });
+        }
+        else if (selected.type === "linear") {
+            setExp({ id: `linearCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
+        }
+       displayLines();
     }
 
 
@@ -160,6 +183,14 @@ function draw() {
         resetTool();
         tool = "bezier";
     }
+    else if (keyIsDown(46) && selected) {
+        lineIDStack.push(selected.id);
+        selected.delete();
+        lines[selected.id] = null;
+        resetCP();
+        resetLines();
+        selected = false;
+    }
     
     // calc.updateSettings({expressions: false});
     // console.log(calc.graphpaperBounds.pixelCoordinates.right);
@@ -167,8 +198,10 @@ function draw() {
 }
 
 for (let i = 0; i < lines.length; i++) {
-    let line = lines[i];
-    line.display(i);
+    if (lines[i] !== null) {
+        let line = lines[i];
+        line.display(i);
+    }
 }
 
 function mousePressed() {
@@ -203,12 +236,14 @@ function mousePressed() {
         mouseState = "linear";
     }
     else if (tool === "select") {
-        
+        let pmouseMath = calc.mathToPixels(mouseMath);
+
         // Checks precedence 
         if (selected.type === "bezier" || selected.type === "linear") {
             let cp = selected.cp;
             for (let i = 0; i < cp.length; i++) {
-                if (dist(cp[i].x, cp[i].y, mouseMath.x, mouseMath.y) < 0.4) {
+                let pcpPos = calc.mathToPixels(cp[i]);
+                if (dist(pcpPos.x, pcpPos.y, pmouseMath.x, pmouseMath.y) < 10) {
                     resetCP();
                     mouseState = "selectCP";
                     selectedCP = i;
@@ -220,24 +255,32 @@ function mousePressed() {
         let minDist = Infinity;
 
         for (let i = 0; i < lines.length; i++) {
-            newDist = lineDist(lines[i],mouseMath)
-            console.log(newDist);
-            if (newDist < minDist) {
-                minDist = newDist;
-                closestLine = lines[i];
+            if (lines[i] !== null) {
+                newDist = lineDist(lines[i],calc.mathToPixels(mouseMath), mathMode=false);
+                console.log(newDist);
+                if (newDist < minDist) {
+                    minDist = newDist;
+                    closestLine = lines[i];
+                }
             }
         }
-        if (minDist < 0.5) {
-            setExp({ id: `bezierPrevCP`, latex: `[]`});
-            setExp({ id: `bezierCurCP`, latex: `[]` });
-            setExp({ id: `linearCP`, latex: `[]`});
-            selected = closestLine;
-            if (selected.type === "bezier") {
-                setExp({ id: `bezierPrevCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
-                setExp({ id: `bezierCurCP`, latex: `[${Dpoint(selected.cp[2])}, ${Dpoint(selected.cp[3])} ]` });
+        if (minDist < 10) {
+            if (selected === closestLine) {
+                mouseState = "selectLine";
+                oldSelectedCP = Array(...closestLine.cp);
             }
-            else if (selected.type === "linear") {
-                setExp({ id: `linearCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
+            else {
+                setExp({ id: `bezierPrevCP`, latex: `[]`});
+                setExp({ id: `bezierCurCP`, latex: `[]` });
+                setExp({ id: `linearCP`, latex: `[]`});
+                selected = closestLine;
+                if (selected.type === "bezier") {
+                    setExp({ id: `bezierPrevCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
+                    setExp({ id: `bezierCurCP`, latex: `[${Dpoint(selected.cp[2])}, ${Dpoint(selected.cp[3])} ]` });
+                }
+                else if (selected.type === "linear") {
+                    setExp({ id: `linearCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
+                }
             }
 
         }
@@ -277,7 +320,7 @@ function mouseReleased() {
     if (tool === "bezier") {
         if ( bezierCurCP.length && bezierPrevCP.length) {
 
-            lines.push(new Line("bezier", lines.length, bezierPrevCP[0], bezierPrevCP[1], bezierCurCP[0], bezierCurCP[1]));
+            newLine("bezier", bezierPrevCP[0], bezierPrevCP[1], bezierCurCP[0], bezierCurCP[1]);
 
             bezierPrevCP[0] = bezierCurCP[1];
             bezierPrevCP[1] = bezierCurCP[2];
@@ -288,7 +331,7 @@ function mouseReleased() {
     }
     if (tool === "linear") {
         if ( linearCP.length) {
-            lines.push(new Line("linear", lines.length, linearCP[0], linearCP[1]));
+            newLine("linear", linearCP[0], linearCP[1]);
         }
 
         linearCP = []
@@ -300,10 +343,23 @@ function mouseReleased() {
     displayLines();
 }
 
+function newLine(type, ...args) {
+    if (lineIDStack.length) {
+        let tempID = lineIDStack.pop();
+        lines[tempID] = new Line(type, tempID, ...args);
+    }
+    else {
+        lines.push(new Line(type, lines.length, ...args));
+    }
+
+}
+
 function displayLines() {
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
-        line.display(i);
+        if (lines[i] !== null) {
+            let line = lines[i];
+            line.display(i);
+        }
     }   
 }
 
@@ -314,7 +370,7 @@ function resetTool() {
     if (tool === "bezier") {
 
         if ( bezierCurCP.length && bezierPrevCP.length) {
-            lines.push(new Line("bezier", lines.length, bezierPrevCP[0], bezierPrevCP[1], bezierCurCP[0], bezierCurCP[1]));
+            newLine("bezier", bezierPrevCP[0], bezierPrevCP[1], bezierCurCP[0], bezierCurCP[1]);
         }
 
         bezierPrevCP = [];
@@ -325,7 +381,7 @@ function resetTool() {
     }
     else if (tool === "linear") {
         if ( linearCP.length) {
-            lines.push(new Line("linear", lines.length, linearCP[0], linearCP[1]));
+            linesnewLine("linear", linearCP[0], linearCP[1]);
         }
         linearCP = []
         setExp({ id: 'linearLine', latex: ''});
@@ -378,10 +434,16 @@ function resetLines() {
 //  * @param {Line} line - line object
 //  * @param {Vector} pt 
  */
-function lineDist(line, pt) { // Returns a coordinate struct
+function lineDist(line, pt, mathMode=true) { // Returns a float
     if (line.type === "bezier") {
         let scans = 20;
-        let eval = (t) => (cOp((x1,x2,x3,x4) => (1-t)**3 * x1 + 3 * t * (1-t)**2 * x2 + 3 * t**2 * (1-t) * x3 + t**3 * x4, ...line.cp));
+        let eval;
+        if (mathMode) {
+            eval = (t) => (cOp((x1,x2,x3,x4) => (1-t)**3 * x1 + 3 * t * (1-t)**2 * x2 + 3 * t**2 * (1-t) * x3 + t**3 * x4, ...line.cp));
+        }
+        else {
+            eval = (t) => (calc.mathToPixels(cOp((x1,x2,x3,x4) => (1-t)**3 * x1 + 3 * t * (1-t)**2 * x2 + 3 * t**2 * (1-t) * x3 + t**3 * x4, ...line.cp)));
+        }
         let minDist = Infinity;
         let minT = 0;
 
@@ -396,8 +458,8 @@ function lineDist(line, pt) { // Returns a coordinate struct
 
         let ans = minSearch((t) => dist(eval(t).x, eval(t).y, pt.x, pt.y), max(0, minT - 1/scans), min(1, minT + 1/scans), min(1- 1/scans, max(1/scans, minT)));
         let pos = eval(ans);
-        console.log(minT, ans);
-        console.log(minDist, dist(pos.x, pos.y, pt.x, pt.y));
+
+
         return dist(pos.x, pos.y, pt.x, pt.y);
     }
     else if (line.type === "linear") {
@@ -405,10 +467,17 @@ function lineDist(line, pt) { // Returns a coordinate struct
         let cMag = (c) => sqrt(c.x**2 + c.y**2);
         let cDot = (x1, x2) => x1.x * x2.x + x1.y * x2.y;
         let cProd = (s, c) => ({x:s * c.x, y:s * c.y});
+        
+        
+        let c0 = line.cp[0];
+        let c1 = line.cp[1];
+        if (! mathMode) {
+            c0 = calc.mathToPixels(line.cp[0]);
+            c1 = calc.mathToPixels(line.cp[1]);
+        }
 
-        let h = min(1, max(0, cDot( cSub(pt, line.cp[0]), cSub(line.cp[1], line.cp[0])) / (cMag( cSub(line.cp[1], line.cp[0]) )**2) ));
-
-        return cMag( cSub(  cSub(pt, line.cp[0]), cProd(h, cSub(line.cp[1], line.cp[0])) ));
+        let h = min(1, max(0, cDot( cSub(pt, c0), cSub(c1, c0)) / (cMag( cSub(c1, c0) )**2) ));
+        return cMag( cSub(  cSub(pt, c0), cProd(h, cSub(c1, c0)) ));
     }
 }
 
