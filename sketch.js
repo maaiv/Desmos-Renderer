@@ -17,9 +17,6 @@ let selectedCP = false;
 let oldSelectedCP = false;
 let mousePresPos;
 
-let expressions = new Map();
-
-
 // Tools:
 // "linear" : 1
 // "bezier" : 2
@@ -45,7 +42,8 @@ class Line {
     display() {
         if (this.type === "bezier") {
             if (selected === this) {
-                setExp({ id: `bezier${this.id}`, latex: Dbezier(...this.cp), color: "#5a6ef2"});
+                // These desmos expression IDs should not contain the line type so IDs can be reused even when line type is different
+                setExp({ id: `bezier${this.id}`, latex: Dbezier(...this.cp), color: "#5a6ef2"}); 
             }
             else {
                 setExp({ id: `bezier${this.id}`, latex: Dbezier(...this.cp), color: "#000000" });
@@ -82,8 +80,8 @@ function setup() {
     calculatorDiv.position(0, 0);
 
     options = {
-        // expressions: false,
-        // settingsMenu: false,
+        expressions: false,
+        settingsMenu: false,
         lockViewport: true,
     };
 
@@ -162,8 +160,6 @@ function draw() {
 
 
 
-
-
     if ( keyIsDown(18) ) {
         calc.updateSettings({lockViewport:false})   
     }
@@ -211,28 +207,112 @@ function mousePressed() {
         return;
     } 
     if (tool === "bezier") {
+        let pmouseMath = calc.mathToPixels(mouseMath);
+        let ppointMath;
+        let minDist = Infinity;
+        let minPoint;
+        for (line of lines) {
+            if (line !== null) {
+                if (line.type === "bezier") {
+                    ppointMath = calc.mathToPixels(line.cp[0]);
+                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                        minPoint = line.cp[0];
+                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                    }
+                    ppointMath = calc.mathToPixels(line.cp[3]);
+                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                        minPoint = line.cp[3];
+                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                    }
+                }
+                else if (line.type === "linear") {
+                    ppointMath = calc.mathToPixels(line.cp[0]);
+                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                        minPoint = line.cp[0];
+                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                    }
+                    ppointMath = calc.mathToPixels(line.cp[1]);
+                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                        minPoint = line.cp[1];
+                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                    }
+                }
+            }
+        }
 
         if ( bezierCurCP.length ) {
             if ( bezierPrevCP.length ) { 
             // console.log(bezierCurCP);
             }
             else {
-            bezierPrevCP.push( {x: bezierCurCP[1].x, y: bezierCurCP[1].y} );
-            bezierPrevCP.push( {x: bezierCurCP[2].x, y: bezierCurCP[2].y} );
-            bezierCurCP[1] = mouseMath;
+                bezierPrevCP.push( {x: bezierCurCP[1].x, y: bezierCurCP[1].y} );
+                bezierPrevCP.push( {x: bezierCurCP[2].x, y: bezierCurCP[2].y} );
+
+                if (minDist < 10) {
+                    bezierCurCP[1] = minPoint;
+                } 
+                else {
+                    bezierCurCP[1] = mouseMath;
+                }
             }
         }
         else {
-            bezierCurCP.push( mouseMath );
-            bezierCurCP.push( mouseMath );
-            bezierCurCP.push( mouseMath );
+            if (minDist < 10) {
+                bezierCurCP.push( minPoint );
+                bezierCurCP.push( minPoint );
+                bezierCurCP.push( minPoint );
+            } 
+            else {
+                bezierCurCP.push( mouseMath );
+                bezierCurCP.push( mouseMath );
+                bezierCurCP.push( mouseMath );
+            }
         }
     
         mouseState = "bezier";
     }
     else if (tool === "linear") {
-        linearCP.push( mouseMath );
-        linearCP.push( mouseMath );
+        let pmouseMath = calc.mathToPixels(mouseMath);
+        let ppointMath;
+        let minDist = Infinity;
+        let minPoint;
+        for (line of lines) {
+            if (line !== null) {
+                if (line.type === "bezier") {
+                    ppointMath = calc.mathToPixels(line.cp[0]);
+                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                        minPoint = line.cp[0];
+                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                    }
+                    ppointMath = calc.mathToPixels(line.cp[3]);
+                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                        minPoint = line.cp[3];
+                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                    }
+                }
+                else if (line.type === "linear") {
+                    ppointMath = calc.mathToPixels(line.cp[0]);
+                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                        minPoint = line.cp[0];
+                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                    }
+                    ppointMath = calc.mathToPixels(line.cp[1]);
+                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                        minPoint = line.cp[1];
+                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                    }
+                }
+            }
+        }
+
+        if (minDist < 10) {
+            linearCP.push( minPoint );
+            linearCP.push( minPoint );
+        }
+        else {
+            linearCP.push( mouseMath );
+            linearCP.push( mouseMath );
+        }
         mouseState = "linear";
     }
     else if (tool === "select") {
@@ -331,7 +411,47 @@ function mouseReleased() {
     }
     if (tool === "linear") {
         if ( linearCP.length) {
-            newLine("linear", linearCP[0], linearCP[1]);
+            let ppointMath;
+            let minDist = Infinity;
+            let minPoint;
+            for (line of lines) {
+                if (line !== null) {
+                    if (line.type === "bezier") {
+                        ppointMath = calc.mathToPixels(line.cp[0]);
+                        if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                            minPoint = line.cp[0];
+                            minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                        }
+                        ppointMath = calc.mathToPixels(line.cp[3]);
+                        if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                            minPoint = line.cp[3];
+                            minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                        }
+                    }
+                    else if (line.type === "linear") {
+                        ppointMath = calc.mathToPixels(line.cp[0]);
+                        if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                            minPoint = line.cp[0];
+                            minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                        }
+                        ppointMath = calc.mathToPixels(line.cp[1]);
+                        if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
+                            minPoint = line.cp[1];
+                            minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                        }
+                    }
+                }
+            }
+
+            if (minDist < 10) {
+                newLine("linear", linearCP[0], minPoint);
+                linearCP[1] = minPoint;
+                setExp({  id: `linearLine`, latex: Dline(linearCP[0], linearCP[1]) })
+                displayCP();
+            }
+            else {
+                newLine("linear", linearCP[0], linearCP[1]);
+            }
         }
 
         linearCP = []
@@ -484,7 +604,6 @@ function lineDist(line, pt, mathMode=true) { // Returns a float
 
 function setExp(exp) {
     calc.setExpression(exp);
-    expressions.set(exp.id, exp);
 }
 
 // Returns an input t value
@@ -531,4 +650,3 @@ function Dline(c1, c2) {
 function Dpoint(coords) {
     return `(${coords.x},${coords.y})`
 }
-
