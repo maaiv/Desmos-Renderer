@@ -134,14 +134,13 @@ function draw() {
         selected.cp[selectedCP] = mouseMath;
 
         if (selected.type === "bezier") {
-            bezierPrevCP = [selected.cp[0], selected.cp[1]];
-            bezierCurCP = [selected.cp[2], selected.cp[3]];
+            setExp({ id: `bezierPrevCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
+            setExp({ id: `bezierCurCP`, latex: `[${Dpoint(selected.cp[2])}, ${Dpoint(selected.cp[3])} ]` });
         }
         else if (selected.type === "linear") {
-            linearCP = [selected.cp[0], selected.cp[1]];
+            setExp({ id: `linearCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
         }
 
-        displayCP();
         displayLines();
     }
     else if (mouseState === "selectLine") {
@@ -207,39 +206,7 @@ function mousePressed() {
         return;
     } 
     if (tool === "bezier") {
-        let pmouseMath = calc.mathToPixels(mouseMath);
-        let ppointMath;
-        let minDist = Infinity;
-        let minPoint;
-        for (line of lines) {
-            if (line !== null) {
-                if (line.type === "bezier") {
-                    ppointMath = calc.mathToPixels(line.cp[0]);
-                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                        minPoint = line.cp[0];
-                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                    }
-                    ppointMath = calc.mathToPixels(line.cp[3]);
-                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                        minPoint = line.cp[3];
-                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                    }
-                }
-                else if (line.type === "linear") {
-                    ppointMath = calc.mathToPixels(line.cp[0]);
-                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                        minPoint = line.cp[0];
-                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                    }
-                    ppointMath = calc.mathToPixels(line.cp[1]);
-                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                        minPoint = line.cp[1];
-                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                    }
-                }
-            }
-        }
-
+        let snapToPoint = snapTo(); // Returns false if no point to snap to, returns point to snap to otherwise
         if ( bezierCurCP.length ) {
             if ( bezierPrevCP.length ) { 
             // console.log(bezierCurCP);
@@ -248,8 +215,8 @@ function mousePressed() {
                 bezierPrevCP.push( {x: bezierCurCP[1].x, y: bezierCurCP[1].y} );
                 bezierPrevCP.push( {x: bezierCurCP[2].x, y: bezierCurCP[2].y} );
 
-                if (minDist < 10) {
-                    bezierCurCP[1] = minPoint;
+                if (snapToPoint !== false) {
+                    bezierCurCP[1] = snapToPoint;
                 } 
                 else {
                     bezierCurCP[1] = mouseMath;
@@ -257,10 +224,10 @@ function mousePressed() {
             }
         }
         else {
-            if (minDist < 10) {
-                bezierCurCP.push( minPoint );
-                bezierCurCP.push( minPoint );
-                bezierCurCP.push( minPoint );
+            if (snapToPoint !== false) {
+                bezierCurCP.push( snapToPoint );
+                bezierCurCP.push( snapToPoint );
+                bezierCurCP.push( snapToPoint );
             } 
             else {
                 bezierCurCP.push( mouseMath );
@@ -272,42 +239,11 @@ function mousePressed() {
         mouseState = "bezier";
     }
     else if (tool === "linear") {
-        let pmouseMath = calc.mathToPixels(mouseMath);
-        let ppointMath;
-        let minDist = Infinity;
-        let minPoint;
-        for (line of lines) {
-            if (line !== null) {
-                if (line.type === "bezier") {
-                    ppointMath = calc.mathToPixels(line.cp[0]);
-                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                        minPoint = line.cp[0];
-                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                    }
-                    ppointMath = calc.mathToPixels(line.cp[3]);
-                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                        minPoint = line.cp[3];
-                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                    }
-                }
-                else if (line.type === "linear") {
-                    ppointMath = calc.mathToPixels(line.cp[0]);
-                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                        minPoint = line.cp[0];
-                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                    }
-                    ppointMath = calc.mathToPixels(line.cp[1]);
-                    if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                        minPoint = line.cp[1];
-                        minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                    }
-                }
-            }
-        }
 
-        if (minDist < 10) {
-            linearCP.push( minPoint );
-            linearCP.push( minPoint );
+        let snapToPoint = snapTo();
+        if (snapToPoint !== false) {
+            linearCP.push( snapToPoint );
+            linearCP.push( snapToPoint );
         }
         else {
             linearCP.push( mouseMath );
@@ -337,7 +273,7 @@ function mousePressed() {
         for (let i = 0; i < lines.length; i++) {
             if (lines[i] !== null) {
                 newDist = lineDist(lines[i],calc.mathToPixels(mouseMath), mathMode=false);
-                console.log(newDist);
+  
                 if (newDist < minDist) {
                     minDist = newDist;
                     closestLine = lines[i];
@@ -379,7 +315,6 @@ function mouseReleased() {
     
     let pmouseMath = calc.mathToPixels(mouseMath);
     let pmousePresPos = calc.mathToPixels(mousePresPos);
-
     let dpos = {x: pmouseMath.x - pmousePresPos.x, y: pmouseMath.y - pmousePresPos.y};
 
 
@@ -411,41 +346,11 @@ function mouseReleased() {
     }
     if (tool === "linear") {
         if ( linearCP.length) {
-            let ppointMath;
-            let minDist = Infinity;
-            let minPoint;
-            for (line of lines) {
-                if (line !== null) {
-                    if (line.type === "bezier") {
-                        ppointMath = calc.mathToPixels(line.cp[0]);
-                        if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                            minPoint = line.cp[0];
-                            minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                        }
-                        ppointMath = calc.mathToPixels(line.cp[3]);
-                        if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                            minPoint = line.cp[3];
-                            minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                        }
-                    }
-                    else if (line.type === "linear") {
-                        ppointMath = calc.mathToPixels(line.cp[0]);
-                        if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                            minPoint = line.cp[0];
-                            minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                        }
-                        ppointMath = calc.mathToPixels(line.cp[1]);
-                        if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist) {
-                            minPoint = line.cp[1];
-                            minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
-                        }
-                    }
-                }
-            }
 
-            if (minDist < 10) {
-                newLine("linear", linearCP[0], minPoint);
-                linearCP[1] = minPoint;
+            let snapToPoint = snapTo();
+            if (snapToPoint !== false) {
+                newLine("linear", linearCP[0], snapToPoint);
+                linearCP[1] = snapToPoint;
                 setExp({  id: `linearLine`, latex: Dline(linearCP[0], linearCP[1]) })
                 displayCP();
             }
@@ -453,15 +358,37 @@ function mouseReleased() {
                 newLine("linear", linearCP[0], linearCP[1]);
             }
         }
-
+        
         linearCP = []
         mouseState = false;
     }
+    
+    
     if (tool === "select") {
+        if (mouseState === "selectCP") {
+            let snapToPoint = snapTo();
+            
+            if (snapToPoint !== false) {
+                if (selected.type === "linear") {
+                    console.log(snapToPoint);
+                    selected.cp[selectedCP] = snapToPoint;
+                    setExp({ id: `linearCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
+                }
+                else if (selected.type === "bezier" && (selectedCP === 0 || selectedCP === 3)) {
+                    selected.cp[selectedCP] = snapToPoint;
+                    setExp({ id: `bezierPrevCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
+                    setExp({ id: `bezierCurCP`, latex: `[${Dpoint(selected.cp[2])}, ${Dpoint(selected.cp[3])} ]` });
+                }
+
+            }
+        }
+
         mouseState = false;
     }
     displayLines();
 }
+
+
 
 function newLine(type, ...args) {
     if (lineIDStack.length) {
@@ -520,6 +447,48 @@ function resetTool() {
     tool = "select";
 }
 
+function snapTo() {
+    let pmouseMath = calc.mathToPixels(mouseMath);
+    let ppointMath;
+    let minDist = Infinity;
+    let minPoint;
+    for (line of lines) {
+        if (line !== null) {
+            if (line.type === "bezier") {
+                ppointMath = calc.mathToPixels(line.cp[0]);
+                if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist && (typeof selectedCP !== 'number' || line.cp[0] !== selected.cp[selectedCP])) {
+                    minPoint = line.cp[0];
+                    minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                }
+                ppointMath = calc.mathToPixels(line.cp[3]);
+                if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist && (typeof selectedCP !== 'number' || line.cp[3] !== selected.cp[selectedCP])) {
+                    minPoint = line.cp[3];
+                    minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                }
+            }
+            else if (line.type === "linear") {
+                ppointMath = calc.mathToPixels(line.cp[0]);
+                if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist && (typeof selectedCP !== 'number' || line.cp[0] !== selected.cp[selectedCP])) {
+                    minPoint = line.cp[0];
+                    minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                }
+                ppointMath = calc.mathToPixels(line.cp[1]);
+                if (dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y) < minDist && (typeof selectedCP !== 'number' || line.cp[1] !== selected.cp[selectedCP])) {
+                    minPoint = line.cp[1];
+                    minDist = dist(ppointMath.x, ppointMath.y, pmouseMath.x, pmouseMath.y);
+                }
+            }
+        }
+    }
+
+    if (minDist < 10) {
+        console.log("as");
+        return minPoint;
+    }
+    else {
+        return false;
+    }
+}
 
 function displayCP() {
     let exp;
