@@ -4,27 +4,33 @@ let options;
 
 let bezierPrevCP = [];
 let bezierCurCP = [];
-
 let linearCP = [];
 
 let lines = [];
 let lineIDStack = []; // This stack approach is so overkill lmao
 
-let mouseMath;
-let mouseState;
 let selected = false;
 let selectedCP = false;
 let oldSelectedCP = false;
+
+let states = {history: [{bezierPrevCP: [], bezierCurCP: [], linearCP: [], lines: [], lineIDStack: [], tool: "bezier", selected: false, selectedCP: false, oldSelectedCP: false}], current: 0}; // same :skull:
+
+let mouseMath;
+let mouseState;
 let mousePresPos;
 
+
 // Tools:
-// "linear" : 1
-// "bezier" : 2
+// "linear" : 1  ||  DONE
+// "bezier" : 2  ||  DONE
 // "circle" : 3
 // "rect" : 4
 // "select" : 5
 // "erase" : 6
 let tool = "bezier";
+
+let zdown = false;
+
 
 class Line {
     constructor(type, id, ...args) {
@@ -38,12 +44,18 @@ class Line {
             this.cp = [args[0], args[1]];
         }
 
+
+
+
+        
     }
     display() {
         if (this.type === "bezier") {
             if (selected === this) {
                 // These desmos expression IDs should not contain the line type so IDs can be reused even when line type is different
                 setExp({ id: `bezier${this.id}`, latex: Dbezier(...this.cp), color: "#5a6ef2"}); 
+                setExp({ id: `bezierPrevCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
+                setExp({ id: `bezierCurCP`, latex: `[${Dpoint(selected.cp[2])}, ${Dpoint(selected.cp[3])} ]` });
             }
             else {
                 setExp({ id: `bezier${this.id}`, latex: Dbezier(...this.cp), color: "#000000" });
@@ -52,6 +64,7 @@ class Line {
         else if (this.type === "linear") {
             if (selected === this) {
                 setExp({ id: `linear${this.id}`, latex: Dline(...this.cp), color: "#5a6ef2"});
+                setExp({ id: `linearCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
             }
             else {
                 setExp({ id: `linear${this.id}`, latex: Dline(...this.cp), color: "#000000"});
@@ -65,6 +78,9 @@ class Line {
         if (this.type === "linear") {
             setExp({ id: `linear${this.id}`, latex: "", color: "#000000"});
         }
+    }
+    copy() {
+        return new Line(this.type, this.id, ...this.cp);
     }
 }
 
@@ -80,8 +96,8 @@ function setup() {
     calculatorDiv.position(0, 0);
 
     options = {
-        expressions: false,
-        settingsMenu: false,
+        // expressions: false,
+        // settingsMenu: false,
         lockViewport: true,
     };
 
@@ -183,20 +199,43 @@ function draw() {
         selected.delete();
         lines[selected.id] = null;
         resetCP();
-        resetLines();
+        resetCPLines();
         selected = false;
+        newState() 
     }
+
+
+
+
+
+    
+
+    if (keyIsDown(17) && keyIsDown(90) && !zdown && states.current > 0) {
+        zdown = true;
+        resetLines(); 
+        resetCP();
+        resetCPLines();
+        states.current -= 1;
+        bezierPrevCP = Array(...states.history[states.current].bezierPrevCP);
+        bezierCurCP = Array(...states.history[states.current].bezierCurCP);
+        linearCP = Array(...states.history[states.current].linearCP);
+        lines = Array(...(states.history[states.current].lines));
+        lineIDStack = Array(...states.history[states.current].lineIDStack);
+        tool = states.history[states.current].tool;
+        selected = states.history[states.current].selected;
+        selectedCP = states.history[states.current].selectedCP;
+        oldSelectedCP = states.history[states.current].oldSelectedCP;
+        displayLines();
+        displayCP();
+    }
+    if ( !keyIsDown(90) && zdown) {
+        zdown = false;
+    }
+
     
     // calc.updateSettings({expressions: false});
     // console.log(calc.graphpaperBounds.pixelCoordinates.right);
     // console.log(calc.mathToPixels({x:0,y:0}));
-}
-
-for (let i = 0; i < lines.length; i++) {
-    if (lines[i] !== null) {
-        let line = lines[i];
-        line.display(i);
-    }
 }
 
 function mousePressed() {
@@ -290,13 +329,13 @@ function mousePressed() {
                 setExp({ id: `bezierCurCP`, latex: `[]` });
                 setExp({ id: `linearCP`, latex: `[]`});
                 selected = closestLine;
-                if (selected.type === "bezier") {
-                    setExp({ id: `bezierPrevCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
-                    setExp({ id: `bezierCurCP`, latex: `[${Dpoint(selected.cp[2])}, ${Dpoint(selected.cp[3])} ]` });
-                }
-                else if (selected.type === "linear") {
-                    setExp({ id: `linearCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
-                }
+                // if (selected.type === "bezier") {
+                //     setExp({ id: `bezierPrevCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
+                //     setExp({ id: `bezierCurCP`, latex: `[${Dpoint(selected.cp[2])}, ${Dpoint(selected.cp[3])} ]` });
+                // }
+                // else if (selected.type === "linear") {
+                //     setExp({ id: `linearCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
+                // }
             }
 
         }
@@ -321,10 +360,10 @@ function mouseReleased() {
     if (sqrt(dpos.x**2 + dpos.y**2) < 5 && calc.settings.lockViewport === true && tool !== "select")  {
         resetCP();
         if (mouseState == "linear") {
-            resetLines();
+            resetCPLines();
         }
         else if (mouseState == "bezier") {
-            resetLines();
+            resetCPLines();
         }
 
         mouseState = false;
@@ -386,8 +425,24 @@ function mouseReleased() {
         mouseState = false;
     }
     displayLines();
+
+    newState();
 }
 
+
+function newState() {
+    while (states.history.length > states.current+1) {
+        states.history.pop();
+    }
+
+    states.history.push({bezierPrevCP: Array(...bezierPrevCP), bezierCurCP: Array(...bezierCurCP), linearCP: Array(...linearCP), lines: Array(...lines), lineIDStack: Array(...lineIDStack), tool: tool, selected: selected, selectedCP: selectedCP, oldSelectedCP: oldSelectedCP});
+    states.current += 1;
+    
+    if (JSON.stringify(states.history[states.history.length - 1]) == JSON.stringify(states.history[states.history.length - 2])) {
+        states.history.pop();
+    }
+
+}
 
 
 function newLine(type, ...args) {
@@ -410,7 +465,13 @@ function displayLines() {
     }   
 }
 
-
+function resetLines() {
+    for (let line of lines) {
+        if (line !== null) {
+            line.delete();
+        }
+    }
+}
 
 function resetTool() {
     
@@ -514,7 +575,7 @@ function resetCP() {
     setExp({ id: `linearCP`, latex: `[]`});
 }
 
-function resetLines() {
+function resetCPLines() {
     setExp({ id: 'bezierLine', latex: '0' });
     setExp({ id: 'linearLine', latex: '0' });
 }
@@ -591,9 +652,6 @@ function minSearch(fun, smin, smax, smid) {
     return smin;
 
 }
-
-
-
 
 function cOp(fun, ...coords) {
     let cx = coords.map((c) => c.x);
