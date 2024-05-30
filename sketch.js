@@ -96,8 +96,8 @@ function setup() {
     calculatorDiv.position(0, 0);
 
     options = {
-        expressions: false,
-        settingsMenu: false,
+        // expressions: false,
+        // settingsMenu: false,
         lockViewport: true,
     };
 
@@ -111,7 +111,6 @@ function setup() {
     
     setExp({ id: 'linearCP', latex: '[]', color: "#5a6ef2",lines:true });
     setExp({ id: 'linearLine', latex: '0', color: "#5a6ef2" });
-
 
 }
 
@@ -148,7 +147,6 @@ function draw() {
     }
     else if (mouseState === "selectCP") {
         lines[selected.id].cp[selectedCP] = mouseMath;
-        console.log("brih");
 
         if (selected.type === "bezier") {
             setExp({ id: `bezierPrevCP`, latex: `[${Dpoint(selected.cp[0])}, ${Dpoint(selected.cp[1])} ]`});
@@ -665,6 +663,10 @@ function Dbezier(c1, c2, c3, c4) {
 }
 
 function Dline(c1, c2) {
+
+    return `(${c1.x} (1-t) + ${c2.x} (t), ${c1.y} (1-t) + ${c2.y} (t))`;
+    return `(${c1.x},${c1.y})(1-t) + ${c2.x},${c2.y})(t) `;
+
     if (abs(atan2(c1.y - c2.y, c1.x - c2.x)) > 1.55 && abs(atan2(c1.y - c2.y, c1.x - c2.x))  < 1.6) {
         return `x = ${(c1.x-c2.x)/(c1.y-c2.y)}(y-${c1.y}) + ${c1.x} \\left\\{ ${min(c1.y,c2.y)} \\leq y \\leq ${max(c1.y,c2.y)} \\right\\}`;
     }
