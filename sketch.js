@@ -9,6 +9,9 @@ let linearCP = [];
 let lines = [];
 let lineIDStack = []; // This stack approach is so overkill lmao
 
+let colourPicker;
+let alphaSlider;
+
 let selected = false;
 let selectedCP = false;
 let oldSelectedCP = false;
@@ -33,9 +36,10 @@ let zdown = false;
 
 
 class Line {
-    constructor(type, id, ...args) {
+    constructor(type, id, colour, alpha, ...args) {
         this.type = type;
-
+        this.colour = colour;
+        this.opacity = alpha;
         this.id = id;
         if (type === "bezier") {
             this.cp = [args[0], args[1], args[2], args[3]];
@@ -43,6 +47,7 @@ class Line {
         else if (type === "linear") {
             this.cp = [args[0], args[1]];
         }
+
 
 
 
@@ -58,7 +63,7 @@ class Line {
                 setExp({ id: `bezierCurCP`, latex: `[${Dpoint(this.cp[2])}, ${Dpoint(this.cp[3])} ]` });
             }
             else {
-                setExp({ id: `bezier${this.id}`, latex: Dbezier(...this.cp), color: "#000000" });
+                setExp({ id: `bezier${this.id}`, latex: Dbezier(...this.cp), color: `${this.colour}`, lineOpacity: `${this.opacity/255}` });
             }
         }
         else if (this.type === "linear") {
@@ -67,7 +72,7 @@ class Line {
                 setExp({ id: `linearCP`, latex: `[${Dpoint(this.cp[0])}, ${Dpoint(this.cp[1])} ]`});
             }
             else {
-                setExp({ id: `linear${this.id}`, latex: Dline(...this.cp), color: "#000000"});
+                setExp({ id: `linear${this.id}`, latex: Dline(...this.cp), color: `${this.colour}`, lineOpacity: `${this.opacity/255}`});
             }
         }
     }
@@ -80,7 +85,7 @@ class Line {
         }
     }
     copy() {
-        return new Line(this.type, this.id, ...this.cp);
+        return new Line(this.type, this.id, this.colour, this.alpha, ...this.cp);
     }
 }
 
@@ -90,14 +95,20 @@ function setup() {
     colorMode(HSL);
     noFill();
 
+    colourPicker = createColorPicker('black');
+    colourPicker.position(width-200 - colourPicker.width/2,height/3 - colourPicker.height/2);
+
+    alphaSlider = createSlider(0, 255, 255);
+    alphaSlider.position(width-200 - alphaSlider.width/2,height/3 + 20 - alphaSlider.height/2);
+
     let calculatorDiv = createDiv();
     calculatorDiv.id("calculator");
     calculatorDiv.style(`width: ${width*0.7}px; height: ${height*0.995}px;`);
     calculatorDiv.position(0, 0);
 
     options = {
-        // expressions: false,
-        // settingsMenu: false,
+        expressions: false,
+        settingsMenu: false,
         lockViewport: true,
     };
 
@@ -182,6 +193,21 @@ function draw() {
     }
 
 
+    if ( keyIsDown(80) ) {
+        calc.updateSettings({
+            expressions: false,
+            settingsMenu: false
+        })   
+    }
+    else if ( keyIsDown(81) ) {
+        calc.updateSettings({
+            expressions: true,
+            settingsMenu: true
+        })   
+    }
+
+
+
     if (keyIsDown(32)) {
         resetTool();
     }
@@ -235,7 +261,7 @@ function draw() {
 function mousePressed() {
 
     mousePresPos = mouseMath;
-    if (calc.settings.lockViewport === false) {
+    if (calc.settings.lockViewport === false || mouseX > width * 0.7) {
         return;
     } 
     if (tool === "bezier") {
@@ -368,7 +394,7 @@ function mouseReleased() {
     if (tool === "bezier") {
         if ( bezierCurCP.length && bezierPrevCP.length) {
 
-            newLine("bezier", bezierPrevCP[0], bezierPrevCP[1], bezierCurCP[0], bezierCurCP[1]);
+            newLine("bezier", colourPicker.color(), alphaSlider.value(), bezierPrevCP[0], bezierPrevCP[1], bezierCurCP[0], bezierCurCP[1]);
 
             bezierPrevCP[0] = bezierCurCP[1];
             bezierPrevCP[1] = bezierCurCP[2];
@@ -382,13 +408,13 @@ function mouseReleased() {
 
             let snapToPoint = snapTo();
             if (snapToPoint !== false) {
-                newLine("linear", linearCP[0], snapToPoint);
+                newLine("linear", colourPicker.color(), alphaSlider.value(), linearCP[0], snapToPoint);
                 linearCP[1] = snapToPoint;
                 setExp({  id: `linearLine`, latex: Dline(linearCP[0], linearCP[1]) })
                 displayCP();
             }
             else {
-                newLine("linear", linearCP[0], linearCP[1]);
+                newLine("linear", colourPicker.color(), alphaSlider.value(), linearCP[0], linearCP[1]);
             }
         }
         
@@ -475,7 +501,7 @@ function resetTool() {
     if (tool === "bezier") {
 
         if ( bezierCurCP.length && bezierPrevCP.length) {
-            newLine("bezier", bezierPrevCP[0], bezierPrevCP[1], bezierCurCP[0], bezierCurCP[1]);
+            newLine("bezier", colourPicker.color(), alphaSlider.value(), bezierPrevCP[0], bezierPrevCP[1], bezierCurCP[0], bezierCurCP[1]);
         }
 
         bezierPrevCP = [];
@@ -486,7 +512,7 @@ function resetTool() {
     }
     else if (tool === "linear") {
         if ( linearCP.length) {
-            linesnewLine("linear", linearCP[0], linearCP[1]);
+            linesnewLine("linear", colourPicker.color(), alphaSlider.value(), linearCP[0], linearCP[1]);
         }
         linearCP = []
         setExp({ id: 'linearLine', latex: ''});
