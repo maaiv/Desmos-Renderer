@@ -36,20 +36,19 @@ let zdown = false;
 
 
 class Line {
-    constructor(type, id, colour, alpha, ...args) {
+    constructor(type, id, next=null, prev=null, colour, alpha, ...args) {
         this.type = type;
         this.colour = colour;
         this.opacity = alpha;
         this.id = id;
+        this.next = next;
+        this.prev = prev;
         if (type === "bezier") {
             this.cp = [args[0], args[1], args[2], args[3]];
         }
         else if (type === "linear") {
             this.cp = [args[0], args[1]];
         }
-
-
-
 
 
         
@@ -107,9 +106,9 @@ function setup() {
     calculatorDiv.position(0, 0);
 
     options = {
-        expressions: false,
-        settingsMenu: false,
-        lockViewport: true,
+        // expressions: false,
+        // settingsMenu: false,
+        // lockViewport: true,
     };
 
     let elt = document.getElementById('calculator');
