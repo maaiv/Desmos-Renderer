@@ -36,13 +36,11 @@ let zdown = false;
 
 
 class Line {
-    constructor(type, id, next=null, prev=null, colour, alpha, ...args) {
+    constructor(type, id, colour, alpha, ...args) {
         this.type = type;
         this.colour = colour;
         this.opacity = alpha;
         this.id = id;
-        this.next = next;
-        this.prev = prev;
         if (type === "bezier") {
             this.cp = [args[0], args[1], args[2], args[3]];
         }
@@ -102,7 +100,7 @@ function setup() {
 
     let calculatorDiv = createDiv();
     calculatorDiv.id("calculator");
-    calculatorDiv.style(`width: ${width*0.7}px; height: ${height*0.995}px;`);
+    calculatorDiv.style(`width: ${width*0.71}px; height: ${height*0.995}px;`);
     calculatorDiv.position(0, 0);
 
     options = {
@@ -125,7 +123,7 @@ function setup() {
 }
 
 function draw() {
-    background(310,30,20); 
+    background(310,30,20);
 
     push();
     strokeWeight(2);
@@ -680,7 +678,6 @@ function cOp(fun, ...coords) {
     let cy = coords.map((c) => c.y);
     return {x: fun( ...cx ), y: fun( ...cy ) }
 }
-
 
 // Compile to desmos code
 function Dbezier(c1, c2, c3, c4) {

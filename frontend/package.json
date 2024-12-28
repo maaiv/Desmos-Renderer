@@ -10,7 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@p5-wrapper/react": "^4.4.2",
+    "desmos-react": "^1.2.0",
+    "p5": "^1.10.0",
+    "p5js": "^1.2.18",
     "react": "^18.3.1",
+    "react-color": "^2.19.3",
+    "react-colorful": "^5.6.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
