@@ -19,9 +19,13 @@ class CalculatorApp extends React.Component {
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleKeyUp = this.handleKeyUp.bind(this);
         this.setCanvasKeyUpdate = this.setCanvasKeyUpdate.bind(this);
+        this.handleFocus = this.handleFocus.bind(this);
 
         document.onkeydown = this.handleKeyDown;
         document.onkeyup = this.handleKeyUp;
+        window.onfocus = this.handleFocus;
+        
+
     }
     render() {
         return (
@@ -47,8 +51,8 @@ class CalculatorApp extends React.Component {
     handleKeyDown(event) {
         let newKeys = this.state.keys;
         newKeys.add(event.code);
-        this.setState({keys: newKeys});
 
+        this.setState({keys: newKeys});
         this.canvasKeyUpdate();
         
     }
@@ -58,6 +62,13 @@ class CalculatorApp extends React.Component {
         newKeys.delete(event.code);
         this.setState({keys: newKeys});
 
+
+        this.canvasKeyUpdate();
+    }
+    handleFocus(event) {
+        let newKeys = this.state.keys;
+        newKeys.delete("AltLeft");
+        this.setState({keys: newKeys});
         this.canvasKeyUpdate();
     }
 

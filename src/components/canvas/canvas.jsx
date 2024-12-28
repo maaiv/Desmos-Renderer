@@ -40,9 +40,6 @@ class Canvas extends React.Component {
         )
     }
 
-    componentDidUpdate() {
-        console.log("WTF");
-    }
 
 
     componentDidMount() {
@@ -137,7 +134,6 @@ class Canvas extends React.Component {
             let snapToPoint = snapTo(); // Returns false if no point to snap to, returns point to snap to otherwise
             if ( bezierCurCP.length ) {
                 if ( bezierPrevCP.length ) { 
-                // console.log(bezierCurCP);
                 }
                 else {
                     bezierPrevCP.push( {x: bezierCurCP[1].x, y: bezierCurCP[1].y} );
