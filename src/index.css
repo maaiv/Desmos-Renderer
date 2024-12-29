@@ -12,21 +12,30 @@ body {
 }
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+    /* Colour Constants */
+    --accent-colour: rgb(174, 0, 255);
+    --background-colour: rgb(43, 41, 44);
+    --background-colour2: rgb(57, 54, 58);
+    /* --text-colour: rgba(255, 255, 255, 0.87); */
+    --text-colour: rgb(203, 203, 203);
+    
+    
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    
+    color-scheme: light dark;
+    color: var(--text-colour);
+    background-color: var(--background-colour);
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 
 }
 
@@ -34,7 +43,11 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
+
 }
+
+
+
 /* 
 * {
     outline: 1px solid red;

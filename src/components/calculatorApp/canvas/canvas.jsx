@@ -31,6 +31,7 @@ class Canvas extends React.Component {
         this.handleMouseUp = this.handleMouseUp.bind(this);
 
         this.keyUpdate = this.keyUpdate.bind(this);
+        this.resetTool = this.resetTool.bind(this);
 
     }
     render() {
@@ -65,7 +66,8 @@ class Canvas extends React.Component {
         setExp({ id: 'linearCP', latex: '[]', color: "#5a6ef2", lines:true });
         setExp({ id: 'linearLine', latex: '0', color: "#5a6ef2" });
 
-        this.props.registerCallback(this.keyUpdate);
+        this.props.registerKeyCallback(this.keyUpdate);
+        this.props.registerToolCallback(this.resetTool);
 
     }
 
@@ -312,8 +314,10 @@ class Canvas extends React.Component {
     }
 
     keyUpdate() {
-
         const { colour, tool, keys } = this.props.appState;
+        // console.log( tool);
+
+
         if ( keys.has("AltLeft") ) {
             calc.updateSettings({lockViewport:false})   
         }
@@ -334,8 +338,8 @@ class Canvas extends React.Component {
                 settingsMenu: true
             })   
         }
-    
-        if (keys.has("Space")) {
+
+        if (keys.has("Space") ) {
             this.resetTool();
         }
         else if (keys.has("Digit1")) {
@@ -381,6 +385,8 @@ class Canvas extends React.Component {
     }
 
 
+
+
     newState() {
         const { colour, tool, keys } = this.props.appState;
         while (states.history.length > states.current+1) {
@@ -420,7 +426,6 @@ class Canvas extends React.Component {
             setExp({ id: 'linearCP', latex: '[]'});
         }
         else if (tool === "select") {
-    
             resetCP();
             selected = false;
             selectedCP = false;

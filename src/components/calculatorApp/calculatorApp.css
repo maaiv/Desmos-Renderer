@@ -1,3 +1,15 @@
 #app {
     display:flex;
 }
+
+#side-bar {
+    width: 15vw;
+    
+}
+
+.react-colorful {
+    margin: 10px;
+    justify-self: center;
+    width: 90% !important;
+    height: 25% !important;
+}
