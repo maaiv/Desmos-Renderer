@@ -1,0 +1,83 @@
+/* Account Container */
+.account-container {
+    position: relative;
+    display: flex;
+}
+
+/* Account Button */
+.account-button {
+    background-color: transparent;
+    display: inherit;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 10px;
+    cursor: pointer;
+}
+
+.account-button:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--background-colour2);
+
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    z-index: 1000;
+    min-width: 150px;
+
+    /* Animation styles */
+    opacity: 0; /* Initially invisible */
+    transform: scaleY(0); /* Initially collapsed */
+    transform-origin: top; /* Animate from the top */
+    transition: opacity 0.1s ease, transform 0.1s ease;
+
+}
+
+/* When the dropdown is visible */
+.dropdown-menu.open {
+    opacity: 1; /* Fully visible */
+    transform: scaleY(1); /* Fully expanded */
+}
+
+.user-info {
+    padding: 5px;
+    margin: 5px 0;
+    display: flex;
+    border-radius: 5px;
+    border: none;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+
+
+.user-info > img {
+    width: 20%;
+    display: inherit; 
+    margin: 0 10px 0 0;
+    border-radius: 5px;
+}
+
+/* Login Button */
+.login-button {
+    background-color: var(--accent-colour);
+    color: var(--text-colour);
+    border: none;
+    padding: 10px 20px;
+    margin: 5px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+    text-align: center;
+}
+
+.login-button:hover {
+    background-color: var(--accent-colour2);
+}
