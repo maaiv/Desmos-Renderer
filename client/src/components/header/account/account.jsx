@@ -155,7 +155,7 @@ function Account() {
 
                 {isAuthenticated && ( <> 
                     <div className="user-info"> <img src={user.picture} alt={user.picture} /> {user.name} </div> 
-                    <button className="login-button" onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>
+                    <button className="login-button" onClick={() => logout({ logoutParams: { returnTo: window.location.href } })}>
                         Log Out
                     </button> 
 

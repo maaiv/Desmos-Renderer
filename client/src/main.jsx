@@ -7,10 +7,10 @@ import './index.css'
 
 const root = createRoot(document.getElementById('root'));
 
-const redirectUri = "https://maaiv.github.io/Desmos-Renderer";
-//   process.env.NODE_ENV === "production"
-//     ? "https://maaiv.github.io/"
-//     : "http://localhost:3000";
+const redirectUri = 
+  process.env.NODE_ENV === "production"
+    ? "https://maaiv.github.io/Desmos-Renderer"
+    : "http://localhost:3000/Desmos-Renderer";
 
 root.render(
     <Auth0Provider
