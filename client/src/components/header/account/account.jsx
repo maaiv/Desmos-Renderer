@@ -138,6 +138,11 @@ function Account() {
     };
 
 
+    const redirectUri = 
+    process.env.NODE_ENV === "production"
+      ? "https://maaiv.github.io/Desmos-Renderer"
+      : "http://localhost:3000/Desmos-Renderer";
+
     return (
         <div className="account-container">
             {/* Button to toggle the dropdown */}
@@ -153,9 +158,11 @@ function Account() {
                     Log In
                 </button>)}
 
+
+
                 {isAuthenticated && ( <> 
                     <div className="user-info"> <img src={user.picture} alt={user.picture} /> {user.name} </div> 
-                    <button className="login-button" onClick={() => logout({ logoutParams: { returnTo: window.location.href } })}>
+                    <button className="login-button" onClick={() => logout({ logoutParams: { returnTo: redirectUri } })}>
                         Log Out
                     </button> 
 
