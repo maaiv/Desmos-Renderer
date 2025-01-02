@@ -9,6 +9,21 @@ function Account() {
     const [isOpen, setIsOpen] = useState(false);
     const [graphs, setGraphs] = useState([]);
 
+    const { loginWithRedirect } = useAuth0();
+
+    const { logout } = useAuth0();
+
+    const { getIdTokenClaims, user, isAuthenticated, isLoading } = useAuth0();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            let userInfo = {userid: 0, email: user.email};
+            addUser(userInfo);
+        }
+        return;
+        }, [isAuthenticated]
+    )
+
     useEffect(() => {
         async function getGraphs() {
             const response = await fetch(`http://localhost:5050/graphs/`);
@@ -37,23 +52,22 @@ function Account() {
     async function addUser(payload) {
         try {
             // Check if the user exists
-            const checkResponse = await fetch(`http://localhost:5050/users?email=${encodeURIComponent(payload.email)}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
+
+
+            const checkResponse = await fetch(`http://localhost:5050/users/email/${payload.email}`);
     
             if (!checkResponse.ok) {
-                throw new Error(`Error checking user existence: ${checkResponse.statusText}`);
+                const message = `An error occurred searching for : ${checkResponse.statusText}`;
+                console.error(message);
+                return;
             }
-    
-            const existingUser = await checkResponse.json();
-    
+
+            let checkData = await checkResponse.json();
+
             // If the user exists, log and return
-            if (existingUser) {
-                console.log("User already exists:", existingUser);
-                return existingUser;
+            if (checkData.found) {
+                console.log("User already exists:", checkData.user);
+                return checkData.user;
             }
     
             // Add the user if they don't exist
@@ -120,11 +134,6 @@ function Account() {
         console.log("Log In button clicked!");
     };
 
-    const { loginWithRedirect } = useAuth0();
-
-    const { logout } = useAuth0();
-
-    const { user, isAuthenticated, isLoading } = useAuth0();
 
     return (
         <div className="account-container">

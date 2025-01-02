@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import graphsRouter from "./routes/graph.js";
-import usersRouter from "./routes/graph.js";
+import usersRouter from "./routes/user.js";
 
 const PORT = process.env.PORT || 5050;
 const app = express();

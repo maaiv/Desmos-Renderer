@@ -1,5 +1,4 @@
 import express from "express";
-
 // This will help us connect to the database
 import db from "../db/connection.js";
 
@@ -14,29 +13,19 @@ const router = express.Router();
 // This section will help you get a list of all the users.
 router.get("/", async (req, res) => {
     let collection = await db.collection("users");
-    let query;
-    let result;
-    const { type } = req.body.type; // Extract the type from the request body
+    let results = await collection.find({}).toArray();
+    res.status(200).json(results);
+});
 
-    if (!type) {
-        result = await collection.find({}).toArray();
-        return res.send(results).status(200);
-    }
-    else if (type === "userID") {
-        query = {userID: req.body.userID};
-    }
-    else if (type === "email") {
-        query = {email: req.body.email};
-    }
-    else {
-        return res.status(400).send("Invalid 'type' in request body");
-    }
+// This section will help you get a single user by email
+router.get("/email/:email", async (req, res) => {
+    console.log("what")
+    let collection = await db.collection("users");
+    let query = { email: req.params.email };
+    let result = await collection.findOne(query);
 
-    result = await collection.findOne(query);
-
-
-    if (!result) res.send("Not found").status(404);
-    else res.send(result).status(200);
+    if (!result) res.status(200).json({found: false, message: "User not found"});
+    else res.status(200).json({found: true, user: result});
 });
 
 // This section will help you get a single user by id
@@ -45,15 +34,15 @@ router.get("/:id", async (req, res) => {
     let query = { _id: new ObjectId(req.params.id) };
     let result = await collection.findOne(query);
 
-    if (!result) res.send("Not found").status(404);
-    else res.send(result).status(200);
+    if (!result) res.status(200).json({found: false, message: "User not found"});
+    else res.status(200).json({found: true, user: result});
 });
 
 // This section will help you create a new user.
 router.post("/", async (req, res) => {
   try {
     let newDocument = {
-        userID: req.body.userID,
+        userid: req.body.userid,
         email: req.body.email,
     };
     let collection = await db.collection("users");
@@ -71,7 +60,7 @@ router.patch("/:id", async (req, res) => {
     const query = { _id: new ObjectId(req.params.id) };
     const updates = {
       $set: {
-        userID: req.body.userID,
+        userid: req.body.userid,
         email: req.body.email,
       },
     };
@@ -83,34 +72,6 @@ router.patch("/:id", async (req, res) => {
     console.error(err);
     res.status(500).send("Error updating user");
   }
-});
-
-
-
-router.delete("/", async (req, res) => {
-    let collection = await db.collection("users");
-    let query;
-    let result;
-    const { type } = req.body.type; // Extract the type from the request body
-
-    if (!type) {
-        return res.status(400).send("no 'type' in request body");
-    }
-    else if (type === "userID") {
-        query = {userID: req.body.userID};
-    }
-    else if (type === "email") {
-        query = {email: req.body.email};
-    }
-    else {
-        return res.status(400).send("Invalid 'type' in request body");
-    }
-
-    result = await collection.deleteOne(query);
-
-
-    if (!result) res.send("Not found").status(404);
-    else res.send(result).status(200);
 });
 
 // This section will help you delete a user
