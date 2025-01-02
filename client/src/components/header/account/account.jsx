@@ -4,6 +4,9 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "react-router-dom";
 
+// const db = "https://desmos-renderer.onrender.com/"
+const db = "http://localhost:5050"; 
+
 function Account() {
     // State to control the dropdown visibility
     const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +29,7 @@ function Account() {
 
     useEffect(() => {
         async function getGraphs() {
-            const response = await fetch(`http://localhost:5050/graphs/`);
+            const response = await fetch(db + `/graphs/`);
 
             if (!response.ok) {
                 const message = `An error occurred: ${response.statusText}`;
@@ -42,7 +45,7 @@ function Account() {
     );
 
     async function deleteGraphs(id) {
-        await fetch(`http://localhost:5050/graphs/${id}`, {
+        await fetch(db + `/graphs/${id}`, {
             method: "DELETE",
         });
         const newGraphs = graphs.filter((el) => el._id !== id);
@@ -54,7 +57,7 @@ function Account() {
             // Check if the user exists
 
 
-            const checkResponse = await fetch(`http://localhost:5050/users/email/${payload.email}`);
+            const checkResponse = await fetch(db + `/users/email/${payload.email}`);
     
             if (!checkResponse.ok) {
                 const message = `An error occurred searching for : ${checkResponse.statusText}`;
@@ -71,7 +74,7 @@ function Account() {
             }
     
             // Add the user if they don't exist
-            const addResponse = await fetch("http://localhost:5050/users", {
+            const addResponse = await fetch(db + "/users", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -104,7 +107,7 @@ function Account() {
         };
     
         try {
-            const response = await fetch("http://localhost:5050/graphs", {
+            const response = await fetch(db + "/graphs", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
