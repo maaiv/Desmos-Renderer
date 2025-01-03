@@ -1,63 +1,37 @@
 import "./account.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaRegUserCircle } from "react-icons/fa";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "react-router-dom";
+import { useAccountContext } from "../../../accountContext";
 
-const db = "https://desmos-renderer.onrender.com"
-// const db = "http://localhost:5050"; 
+import MyGraphs from "./myGraphs/myGraphs";
+
+
+
 
 function Account() {
     // State to control the dropdown visibility
+
+    const { setUserId, setUserGraphs } = useAccountContext();
+
     const [isOpen, setIsOpen] = useState(false);
-    const [graphs, setGraphs] = useState([]);
+
+    const [isPopoutOpen, setIsPopoutOpen] = useState(false);
 
     const { loginWithRedirect } = useAuth0();
-
+    const dropdownRef = useRef(null); // Ref for the dropdown container
+    
     const { logout } = useAuth0();
 
-    const { getIdTokenClaims, user, isAuthenticated, isLoading } = useAuth0();
+    const { user, isAuthenticated } = useAuth0();
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            let userInfo = {userid: 0, email: user.email};
-            addUser(userInfo);
-        }
-        return;
-        }, [isAuthenticated]
-    )
 
-    useEffect(() => {
-        async function getGraphs() {
-            const response = await fetch(db + `/graphs/`);
-
-            if (!response.ok) {
-                const message = `An error occurred: ${response.statusText}`;
-                console.error(message);
-                return;
-            }
-            const graphs = await response.json();
-            setGraphs(graphs);
-        }
-            getGraphs();
-            return;
-        }, []
-    );
-
-    async function deleteGraphs(id) {
-        await fetch(db + `/graphs/${id}`, {
-            method: "DELETE",
-        });
-        const newGraphs = graphs.filter((el) => el._id !== id);
-        setGraphs(newGraphs);
-    }
-
-    async function addUser(payload) {
+    // Returns the currentUserId
+    async function addUser(userData) {
         try {
             // Check if the user exists
-
-
-            const checkResponse = await fetch(db + `/users/email/${payload.email}`);
+            const checkResponse = await fetch(db + `/users/email/${userData.email}`);
     
             if (!checkResponse.ok) {
                 const message = `An error occurred searching for : ${checkResponse.statusText}`;
@@ -70,7 +44,7 @@ function Account() {
             // If the user exists, log and return
             if (checkData.found) {
                 console.log("User already exists:", checkData.user);
-                return checkData.user;
+                return checkData.user._id;
             }
     
             // Add the user if they don't exist
@@ -79,7 +53,7 @@ function Account() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(payload), // Send the payload
+                body: JSON.stringify(userData), // Send the payload
             });
     
             if (!addResponse.ok) {
@@ -90,41 +64,66 @@ function Account() {
             console.log("User added successfully:", newUser);
     
             // Optionally update state if needed
-            return newUser;
+            return newUser.insertedId;
         } catch (error) {
             console.error("A problem occurred with your fetch operation:", error);
         }
     }
 
+    // Returns an array containing all the current user's graphs
+    async function getGraphs(userId) {
+        const response = await fetch(db + `/graphs/userid/${userId}`);
+        
+        if (!response.ok) {
+            const message = `An error occurred: ${response.statusText}`;
+            console.error(message);
+            return;
+        }
+        const graphs = await response.json();
+        return graphs;
+    }
 
-
-    async function onSubmit() {
-        console.log(graphs);
-        const payload = {
-            name: "Example Graph",
-            description: "This is a new graph created via the 'I have no idea' button.",
-            createdBy: user.email, // Use the authenticated user's email
-        };
-    
-        try {
-            const response = await fetch(db + "/graphs", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload), // Send the payload
-            });
-    
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+    // Minimize dropdown when clicked outside
+    useEffect(() => {
+        // Close the dropdown when clicking outside
+        function handleOutsideClick(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
             }
-    
-            const newGraph = await response.json();
-            setGraphs((prevGraphs) => [...prevGraphs, newGraph]); // Update the state
-        } catch (error) {
-            console.error("A problem occurred with your fetch operation:", error);
         }
-    }
+    
+        document.addEventListener("mousedown", handleOutsideClick);
+        return () => {
+            document.removeEventListener("mousedown", handleOutsideClick);
+        };
+    }, []);
+
+    // Add user to database
+    useEffect(() => {
+
+        async function handleLogin() {
+            const currentUserId = await addUser({userid: 0, email: user.email});
+            console.log(currentUserId);
+            
+            const currentUserGraphs = await getGraphs(currentUserId)
+            setUserId(currentUserId);
+            setUserGraphs(currentUserGraphs);
+            console.log(currentUserGraphs);
+        }
+        if (isAuthenticated) {
+            handleLogin()
+        }
+        return;
+        }, [isAuthenticated]
+    )
+
+    // async function deleteGraphs(id) {
+    //     await fetch(db + `/graphs/${id}`, {
+    //         method: "DELETE",
+    //     });
+    //     const newGraphs = graphs.filter((el) => el._id !== id);
+    //     setGraphs(newGraphs);
+    // }
 
 
     // Toggle dropdown visibility
@@ -132,46 +131,48 @@ function Account() {
         setIsOpen((prevIsOpen) => !prevIsOpen);
     };
 
-    // Log In button click handler
-    const handleLogin = () => {
-        console.log("Log In button clicked!");
-    };
-
 
     const redirectUri = 
     process.env.NODE_ENV === "production"
-      ? "https://maaiv.github.io/Desmos-Renderer"
-      : "http://localhost:3000/Desmos-Renderer";
+        ? "https://maaiv.github.io/Desmos-Renderer"
+        : "http://localhost:3000/Desmos-Renderer";
+
+    const db = 
+    process.env.NODE_ENV === "production"
+            ? "https://desmos-renderer.onrender.com"
+            : "http://localhost:5050";
 
     return (
-        <div className="account-container">
+        <div className="account-container" ref={dropdownRef}>
             {/* Button to toggle the dropdown */}
             <button className="account-button" onClick={toggleDropdown}>
                 <FaRegUserCircle size={25} color="var(--text-colour)" />
             </button>
 
             {/* Dropdown Menu */}
-
-
             <div className={`dropdown-menu ${isOpen ? "open" : ""}`}>
                 {!isAuthenticated && ( <button className="login-button" onClick={() => loginWithRedirect()}>
                     Log In
                 </button>)}
-
-
 
                 {isAuthenticated && ( <> 
                     <div className="user-info"> <img src={user.picture} alt={user.picture} /> {user.name} </div> 
                     <button className="login-button" onClick={() => logout({ logoutParams: { returnTo: redirectUri } })}>
                         Log Out
                     </button> 
-
-                    <button className="login-button" onClick={onSubmit}>
-                    I have no idea
-                    </button>
+                    <button className="login-button" onClick={() => {setIsPopoutOpen(!isPopoutOpen)}}>
+                        My Graphs
+                    </button> 
                 </>)}
-
             </div>
+
+            <MyGraphs 
+                popoutOpen={isPopoutOpen}
+                onClose={()=>setIsPopoutOpen(false)}
+            />
+
+            
+
         </div>
     );
 }

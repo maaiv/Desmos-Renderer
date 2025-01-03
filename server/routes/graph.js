@@ -1,9 +1,5 @@
 import express from "express";
-
-// This will help us connect to the database
 import db from "../db/connection.js";
-
-// This help convert the id from string to ObjectId for the _id.
 import { ObjectId } from "mongodb";
 
 // router is an instance of the express router.
@@ -13,9 +9,17 @@ const router = express.Router();
 
 // This section will help you get a list of all the graphs.
 router.get("/", async (req, res) => {
-  let collection = await db.collection("graphs");
-  let results = await collection.find({}).toArray();
-  res.send(results).status(200);
+    let collection = await db.collection("graphs");
+    let results = await collection.find({}).toArray();
+    res.status(200).json(results);
+});
+
+// This section will help you get a single user by email
+router.get("/userid/:userid", async (req, res) => {
+    let collection = await db.collection("graphs");
+    let query = { userid: req.params.userid };
+    let results = await collection.find(query).toArray();
+    res.status(200).json(results);
 });
 
 // This section will help you get a single graph by id
@@ -32,8 +36,10 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     let newDocument = {
-        userID: req.body.userID,
-        graphID: req.body.userID,
+        title: req.body.title,
+        thumbnail: req.body.thumbnail,
+        userid: req.body.userid,
+        data: req.body.data,
     };
     let collection = await db.collection("graphs");
     let result = await collection.insertOne(newDocument);
@@ -50,8 +56,10 @@ router.patch("/:id", async (req, res) => {
     const query = { _id: new ObjectId(req.params.id) };
     const updates = {
       $set: {
-        userID: req.body.userID,
-        graphID: req.body.userID,
+        title: req.body.title,
+        thumbnail: req.body.thumbnail,
+        userid: req.body.userid,
+        data: req.body.data,
       },
     };
 

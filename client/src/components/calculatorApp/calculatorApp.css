@@ -4,6 +4,7 @@
 
 #side-bar {
     width: 15vw;
+    min-width: 100px;
     
 }
 
@@ -11,5 +12,5 @@
     margin: 10px;
     justify-self: center;
     width: 90% !important;
-    height: 25% !important;
+    height: 20% !important;
 }

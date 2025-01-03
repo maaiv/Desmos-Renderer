@@ -4,23 +4,46 @@ import React from "react";
 
 let calc;
 let options;
+let graphId = null;
 
 let bezierPrevCP = [];
 let bezierCurCP = [];
 let linearCP = [];
 
 let lines = [];
-let lineIDStack = []; // This stack approach is so overkill lmao
+let lineIdStack = []; // This stack approach is so overkill lmao
     
 let selected = false;
 let selectedCP = false;
 let oldSelectedCP = false;
 
-let states = {history: [{bezierPrevCP: [], bezierCurCP: [], linearCP: [], lines: [], lineIDStack: [], tool: "bezier", selected: false, selectedCP: false, oldSelectedCP: false}], current: 0}; // same :skull:
+let states = {history: [{bezierPrevCP: [], bezierCurCP: [], linearCP: [], lines: [], lineIdStack: [], tool: "bezier", selected: false, selectedCP: false, oldSelectedCP: false}], current: 0}; // same :skull:
 
 let mouseMath;
 let mouseState;
 let mousePresPos;
+
+export function getCanvasState() {
+    return {
+        thumbnail: calc.screenshot(),
+        graphId: graphId,
+        data: {
+            options: options,
+            lines: lines,
+            lineIdStack: lineIdStack,
+        }
+    }
+}
+
+export function setCanvasState(newGraphId, data) {
+    console.log(data);
+    graphId = newGraphId;
+    options = data.options;
+    lines = data.lines;
+    lineIdStack = data.lineIdStack;
+}
+
+
 
 class Canvas extends React.Component {
     constructor() {
@@ -351,7 +374,7 @@ class Canvas extends React.Component {
             this.props.updateAppState({tool: "bezier"});
         }
         else if (keys.has("Delete") && selected) {
-            lineIDStack.push(selected.id);
+            lineIdStack.push(selected.id);
             selected.delete();
             lines[selected.id] = null;
             resetCP();
@@ -370,7 +393,7 @@ class Canvas extends React.Component {
             bezierCurCP = Array(...states.history[states.current].bezierCurCP);
             linearCP = Array(...states.history[states.current].linearCP);
             lines = states.history[states.current].lines.map((val) => (val === null) ? val : val.copy());
-            lineIDStack = Array(...states.history[states.current].lineIDStack);
+            lineIdStack = Array(...states.history[states.current].lineIdStack);
             selected = (states.history[states.current].selected) ? states.history[states.current].selected.copy() : states.history[states.current].selected;
             selectedCP = states.history[states.current].selectedCP;
             oldSelectedCP = states.history[states.current].oldSelectedCP;
@@ -393,7 +416,7 @@ class Canvas extends React.Component {
             states.history.pop();
         }
     
-        states.history.push({bezierPrevCP: Array(...bezierPrevCP), bezierCurCP: Array(...bezierCurCP), linearCP: Array(...linearCP), lines: lines.map((val) => (val === null) ? null : val.copy()), lineIDStack: Array(...lineIDStack), tool: tool, selected: (selected) ? selected.copy() : selected, selectedCP: selectedCP, oldSelectedCP: oldSelectedCP});
+        states.history.push({bezierPrevCP: Array(...bezierPrevCP), bezierCurCP: Array(...bezierCurCP), linearCP: Array(...linearCP), lines: lines.map((val) => (val === null) ? null : val.copy()), lineIdStack: Array(...lineIdStack), tool: tool, selected: (selected) ? selected.copy() : selected, selectedCP: selectedCP, oldSelectedCP: oldSelectedCP});
         states.current += 1;
         
         if (JSON.stringify(states.history[states.history.length - 1]) == JSON.stringify(states.history[states.history.length - 2])) {
@@ -492,8 +515,8 @@ class Line {
 
 
 function newLine(type, ...args) {
-    if (lineIDStack.length) {
-        let tempID = lineIDStack.pop();
+    if (lineIdStack.length) {
+        let tempID = lineIdStack.pop();
         lines[tempID] = new Line(type, tempID, ...args);
     }
     else {

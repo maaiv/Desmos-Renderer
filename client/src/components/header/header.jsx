@@ -1,13 +1,21 @@
 import './header.css'
 import { FaRegUserCircle } from "react-icons/fa";
 import Account from "./account/account.jsx"
+import SaveButton from "./saveButton/saveButton.jsx";
 function Header() {
 
     return (
         <header className='component-header'>
-            <div className="user-container">
-            <Account/>
+
+            <div className="account-links">
+                <div className="user-container">
+                    <Account/>
+                </div>
+
+                <SaveButton/>
             </div>
+
+
             <ul className="nav-links">
                 <li className="nav-item">
                     <a href="#" className="nav-link">Light</a>
