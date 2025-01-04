@@ -52,9 +52,6 @@ function SaveButton() {
             userid: graphData.userid,
             data: graphData.data,
         }
-
-
-
         try {
             const response = await fetch(db + `/graphs/${graphId}`, {
                 method: "PATCH",
@@ -69,6 +66,7 @@ function SaveButton() {
             }
             const newGraph = await response.json();
             console.log("graph updated successfully:", newGraph);
+            return graphId;
         } catch (error) {
             console.error("A problem occurred with your fetch operation:", error);
         }
@@ -79,11 +77,10 @@ function SaveButton() {
     async function handleSave() {
         const currentGraph = getCanvasState();
 
-        console.log(currentGraph.graphId);
 
         if (currentGraph.graphId === null) {
             const newGraphId = await addGraph({
-                title: "untitled", 
+                title: "Untitled Graph", 
                 thumbnail: currentGraph.thumbnail,
                 userid:userId,
                 data:currentGraph.data,
@@ -93,6 +90,17 @@ function SaveButton() {
                 newGraphId,
                 currentGraph.data,
             )
+
+            // update currentUserGraphs
+            let currentUserGraphs = userGraphs;
+            currentUserGraphs.push({
+                _id: newGraphId,
+                title: "Untitled Graph", 
+                thumbnail: currentGraph.thumbnail, 
+                userid: userId,
+                data: currentGraph.data, 
+            });
+            setUserGraphs(currentUserGraphs);
         }
         else {
             await updateGraph(currentGraph.graphId, 
@@ -101,6 +109,22 @@ function SaveButton() {
                 userid:userId,
                 data:currentGraph.data}
             );
+
+            // update currentUserGraphs
+            let currentUserGraphs = userGraphs;
+            for (let i = 0; i < currentUserGraphs.length; i++) {
+                if (currentUserGraphs[i]._id === currentGraph.graphId) {
+                    currentUserGraphs[i] = {
+                        _id: currentGraph.graphId,
+                        title: currentGraph.title, 
+                        thumbnail: currentGraph.thumbnail, 
+                        userid: userId,
+                        data: currentGraph.data, 
+                    }
+                }
+            }
+            setUserGraphs(currentUserGraphs);
+
         }
     }
 

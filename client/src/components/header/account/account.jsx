@@ -13,7 +13,7 @@ import MyGraphs from "./myGraphs/myGraphs";
 function Account() {
     // State to control the dropdown visibility
 
-    const { setUserId, setUserGraphs } = useAccountContext();
+    const { setUserId, userGraphs, setUserGraphs } = useAccountContext();
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -83,6 +83,8 @@ function Account() {
         return graphs;
     }
 
+
+
     // Minimize dropdown when clicked outside
     useEffect(() => {
         // Close the dropdown when clicking outside
@@ -116,14 +118,6 @@ function Account() {
         return;
         }, [isAuthenticated]
     )
-
-    // async function deleteGraphs(id) {
-    //     await fetch(db + `/graphs/${id}`, {
-    //         method: "DELETE",
-    //     });
-    //     const newGraphs = graphs.filter((el) => el._id !== id);
-    //     setGraphs(newGraphs);
-    // }
 
 
     // Toggle dropdown visibility
@@ -169,6 +163,7 @@ function Account() {
             <MyGraphs 
                 popoutOpen={isPopoutOpen}
                 onClose={()=>setIsPopoutOpen(false)}
+
             />
 
             
