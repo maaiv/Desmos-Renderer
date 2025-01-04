@@ -8,8 +8,6 @@ import { useAccountContext } from "../../../accountContext";
 import MyGraphs from "./myGraphs/myGraphs";
 
 
-
-
 function Account() {
     // State to control the dropdown visibility
 
@@ -140,7 +138,7 @@ function Account() {
         <div className="account-container" ref={dropdownRef}>
             {/* Button to toggle the dropdown */}
             <button className="account-button" onClick={toggleDropdown}>
-                <FaRegUserCircle size={25} color="var(--text-colour)" />
+                <FaRegUserCircle size={25} color="rgb(var(--text-colour))" />
             </button>
 
             {/* Dropdown Menu */}

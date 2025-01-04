@@ -14,11 +14,12 @@ body {
 :root {
 
     /* Colour Constants */
-    --accent-colour: rgb(174, 0, 255);
-    --accent-colour2: rgb(147, 18, 207);
-    --background-colour: rgb(43, 40, 44);
-    --background-colour2: rgb(58, 53, 59);
-    --text-colour: rgb(221, 221, 221);
+    --accent-colour: 174, 0, 255;
+    --accent-colour2: 147, 18, 207;
+    --background-colour: 43, 40, 44;
+    --background-colour2: 58, 53, 59;
+    --text-colour: 221, 221, 221;
+    --theme-transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease;
 
     /* --accent-colour: rgb(174, 0, 255);
     --accent-colour2: rgb(147, 18, 207);
@@ -27,13 +28,15 @@ body {
     --text-colour: rgb(20, 19, 20); */
     
     
+    transition: var(--theme-transition);
+
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
     
     color-scheme: light dark;
-    color: var(--text-colour);
-    background-color: var(--background-colour);
+    color: rgb(var(--text-colour));
+    background-color: rgb(var(--background-colour));
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;

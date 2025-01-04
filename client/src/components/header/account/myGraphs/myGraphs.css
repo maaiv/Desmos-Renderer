@@ -29,7 +29,7 @@
     display: inherit;
     height: 80%;
     width: 85%;
-    background: var(--background-colour);
+    background: rgb(var(--background-colour));
     border-radius: 10px;
     /* overflow-y: auto; */
     overflow: visible;
@@ -49,16 +49,16 @@
     font-size: 20px;
     width: 25px;
     height: 25px;
-    background: var(--accent-colour);
+    background: rgb(var(--accent-colour));
     border-radius: 5px;
-    color: var(--text-colour);
+    color: rgb(var(--text-colour));
 
     border: none;
     cursor: pointer;
 }
 
 .close-button:hover {
-    background-color: var(--accent-colour2);
+    background-color: rgb(var(--accent-colour2));
 }
 
   /* Columns container */
@@ -110,7 +110,7 @@
   
   .thumbnail-title {
     margin: 5px;
-    color: var(--text-colour);
+    color: rgb(var(--text-colour));
   }
 
   /* Actions under each thumbnail */
@@ -125,12 +125,12 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    background-color: var(--accent-colour);
-    color: var(--text-colour);
+    background-color: rgb(var(--accent-colour));
+    color: rgb(var(--text-colour));
   }
   
   .thumbnail-actions button:hover {
-    background-color: var(--accent-colour2);
+    background-color: rgb(var(--accent-colour2));
   }
 
 
@@ -150,12 +150,12 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: var(--accent-colour); 
+    background: rgb(var(--accent-colour)); 
     border-radius: 10px;
     width:  50%;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-colour2); 
+    background: rgb(var(--accent-colour2)); 
 }

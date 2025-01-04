@@ -1,7 +1,7 @@
 /* Login Button */
 .save-button {
-    background-color: var(--accent-colour);
-    color: var(--text-colour);
+    background-color: rgb(var(--accent-colour));
+    color: rgb(var(--text-colour));
     border: none;
     padding: 5px 5px;
     margin: 6% 0;
@@ -13,7 +13,7 @@
 }
 
 .save-button:hover {
-    background-color: var(--accent-colour2);
+    background-color: rgb(var(--accent-colour2));
 }
 
 .save-graph-overlay {
@@ -40,7 +40,7 @@
 }
 
 .save-graph-content {
-    background-color: var(--background-colour);
+    background-color: rgb(var(--background-colour));
     padding: 20px;
     border-radius: 10px;
     width: 35%;
@@ -50,6 +50,11 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
+.save-graph-id {
+    color: rgb(var(--text-colour));
+    opacity: 0.5;
+    margin: 0;
+}
 
 .save-graph-button {
     align-self:flex-end;
@@ -59,17 +64,18 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    background-color: var(--accent-colour);
-    color: var(--text-colour);   
+    background-color: rgb(var(--accent-colour));
+    color: rgb(var(--text-colour));   
 
 }
 .save-graph-button:hover{
-    background-color: var(--accent-colour2);
+    background-color: rgb(var(--accent-colour2));
   }
 
 .save-graph-content input {
     padding: 10px;
-    border: 2px solid var(--accent-colour);
+    border: 2px solid rgb(var(--accent-colour));
     border-radius: 5px;
-    color: var(--text-colour);
+    color: rgb(var(--text-colour));
+    background-color: rgba(0, 0, 0, 0.3);
 }

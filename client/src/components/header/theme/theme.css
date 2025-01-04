@@ -1,0 +1,137 @@
+.theme-container {
+    width: 35px;
+    height: 35px;
+    background-color: rgb(var(--background-colour));
+    border-radius: 5px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    position: relative;
+    transition: var(--theme-transition);
+
+    overflow: hidden;
+}
+
+.theme-button-light {
+    height: 24px;
+    width: 24px;
+
+    border: none;
+    border-radius: 100%;
+
+    background: rgba(var(--text-colour), 1);
+    position: absolute;
+
+    display: flex;
+    cursor: pointer;
+
+    transform: translateY(0px);
+    scale: 1; 
+
+    transition: transform ease 0.8s, scale ease 0.8s, background-color ease 0.8s;
+}
+
+.theme-button-light.active {
+    transform: translateY(50px); 
+    scale: 0.5;  
+    background: rgba(var(--text-colour), 0);
+}
+
+
+.theme-button-light::before {
+
+    left: 30%;
+    top: 0px;
+    text-align: left;
+    font-size: xx-small;
+    color: rgba(var(--text-colour), 1);
+    content: "✦";
+    padding-top: 1px;
+    padding-left: 3px;
+    height: 19px;
+    width: 17px;
+
+    border-radius: 100%;
+    border: none;    
+    background: rgba(var(--background-colour), 1);
+}
+
+.theme-button-light::after {
+    left: 64%;
+    top: 1px;
+        color: rgba(var(--text-colour), 1);
+    content: "✦";
+    font-size: small;
+}
+
+.theme-button-light::before, .theme-button-light::after {
+    position: absolute;
+    opacity: 1;
+    scale: 1;
+    transition: all ease 0.8s;
+}
+
+
+
+.theme-button-light.active::before, .theme-button-light.active::after {
+    opacity: 0;
+    transition: all ease 0.8s;
+    scale: 0.5; 
+}
+
+
+.theme-button-dark {
+    height: 16px;
+    width: 16px;
+
+
+    border: 3.5px solid rgba(var(--background-colour), 1);
+    border-radius: 100%;
+
+    background: rgba(var(--text-colour), 1);
+    position: absolute;
+    transform-style: preserve-3d;
+    display: flex;
+    cursor: pointer;
+
+    transform: translateY(0px);
+    scale: 1;      
+
+    transition: transform ease 0.8s, scale ease 0.8s, background-color ease 0.8s, border-color ease 0.8s;
+}
+
+.theme-button-dark.active {
+    transform: translateY(50px); 
+    scale: 0.5;  
+    background: rgba(var(--text-colour), 0);
+    border-color: rgba(var(--background-colour), 0);;
+}
+
+
+.theme-button-dark::before, .theme-button-dark::after {
+    height: 20px;
+    width: 20px;
+    left: -2px;
+    top: -2px;
+
+    
+    background: rgba(var(--text-colour), 1);
+    content: '';
+    transform: translateZ(-1px);
+    position: absolute;
+    opacity: 1;
+    scale: 1;
+    transition: all ease 0.8s;
+;
+}
+
+
+.theme-button-dark::after {
+    rotate: 45deg;
+}
+
+.theme-button-dark.active::before, .theme-button-dark.active::after {
+    opacity: 0;
+    transition: all ease 0.8s;
+    scale: 0.5; 
+}

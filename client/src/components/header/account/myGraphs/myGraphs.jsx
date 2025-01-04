@@ -7,7 +7,7 @@ import { useAccountContext } from "../../../../accountContext";
 
 
 function MyGraphs({popoutOpen, onClose, onRename, onLoad}) {
-    const { userGraphs, setUserGraphs, userId } = useAccountContext();
+    const { userGraphs, setUserGraphs, userId, setActiveTitle } = useAccountContext();
 
     const [numColumns, setNumColumns] = useState(3);
 
@@ -106,6 +106,7 @@ function MyGraphs({popoutOpen, onClose, onRename, onLoad}) {
 
     function handleLoad(graphId) {
         setCanvasState(graphId, userGraphs.filter((graph) => graph._id === graphId)[0].data)
+        setActiveTitle(userGraphs.filter((graph) => graph._id === graphId)[0].title);
         onClose();
     }
     

@@ -1,0 +1,19 @@
+.github-container {
+    width: 35px;
+    height: 35px;
+    background-color: rgb(var(--background-colour));
+    border-radius: 5px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    position: relative;
+    transition: var(--theme-transition);
+
+    overflow: hidden;
+}
+
+.github-container>a {
+
+    display: flex;
+
+}

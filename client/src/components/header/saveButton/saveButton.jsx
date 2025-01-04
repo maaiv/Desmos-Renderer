@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 function SaveButton() {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [graphName, setGraphName] = useState("");
-    const { userGraphs, setUserGraphs, userId } = useAccountContext();
+    const { userGraphs, setUserGraphs, userId, setActiveTitle } = useAccountContext();
     const { user, isAuthenticated } = useAuth0();
 
     const db = 
@@ -105,6 +105,8 @@ function SaveButton() {
                     data: currentGraph.data,
                 },
             ]);
+
+            setActiveTitle(graphName || currentGraphTitle);
     
         }
         else {
@@ -129,6 +131,7 @@ function SaveButton() {
                 }
             }
             setUserGraphs(currentUserGraphs);
+            setActiveTitle(graphName || currentGraphTitle);
 
         }
         setIsPopupOpen(false);
@@ -161,6 +164,7 @@ function SaveButton() {
                         </button>
 
                         <h2>Save Graph</h2>
+                        <p className='save-graph-id'>{getCanvasState().graphId && `graph id: ${getCanvasState().graphId}`}</p>
                         <label htmlFor="graphName">Graph Name:</label>
                         <input
                             type="text"

@@ -30,7 +30,7 @@ class CalculatorApp extends React.Component {
     }
     render() {
         return (
-            <div id="app">
+            <div id="calc">
                 <Canvas 
                     appState={this.state}
                     updateAppState={(newState) => this.setState(newState)}
