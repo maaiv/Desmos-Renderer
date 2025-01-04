@@ -31,16 +31,22 @@ export function getCanvasState() {
             options: options,
             lines: lines,
             lineIdStack: lineIdStack,
+            graphState: calc.getState(),
         }
     }
 }
 
 export function setCanvasState(newGraphId, data) {
-    console.log(data);
+
     graphId = newGraphId;
     options = data.options;
-    lines = data.lines;
     lineIdStack = data.lineIdStack;
+    lines = [];
+    for (let line of data.lines) {
+        lines.push(new Line(line.type, line.id, line.colour, ...line.cp));
+    }
+    calc.setState(data.graphState);
+    displayLines();
 }
 
 

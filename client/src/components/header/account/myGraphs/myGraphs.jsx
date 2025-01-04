@@ -53,6 +53,35 @@ function MyGraphs({popoutOpen, onClose, onRename, onLoad}) {
             : "http://localhost:5050";
 
 
+    async function addGraph(graphData) {
+        const payload = { 
+            title: graphData.title,
+            thumbnail: graphData.thumbnail,
+            userid: graphData.userid,
+            data: graphData.data,
+        }
+
+        try {
+            const response = await fetch(db + "/graphs", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+    
+            const newGraph = await response.json();
+            console.log("graph added successfully:", newGraph);
+            return newGraph.insertedId;
+        } catch (error) {
+            console.error("A problem occurred with your fetch operation:", error);
+        }
+    }
+
     async function deleteGraph(graphId) {
         console.log(db + `/graphs/${graphId}`);
         try {
@@ -75,6 +104,37 @@ function MyGraphs({popoutOpen, onClose, onRename, onLoad}) {
     }
 
 
+    function handleLoad(graphId) {
+        setCanvasState(graphId, userGraphs.filter((graph) => graph._id === graphId)[0].data)
+        onClose();
+    }
+    
+
+    async function handleCopy(graphId) {
+        const templateGraph = userGraphs.filter((graph) => graph._id === graphId)[0];
+        const newGraphId = await addGraph({
+            title: templateGraph.title,
+            thumbnail: templateGraph.thumbnail,
+            userid: templateGraph.userid,
+            data: templateGraph.data,
+        });
+
+        setUserGraphs((prevGraphs) => [
+            ...prevGraphs,
+            {
+                _id: newGraphId,
+                title: templateGraph.title, 
+                thumbnail: templateGraph.thumbnail, 
+                userid: templateGraph.userid,
+                data: templateGraph.data,
+            },
+        ]);
+
+
+    }
+
+
+
     async function handleDelete(graphId) {
 
         deleteGraph(graphId);
@@ -82,7 +142,15 @@ function MyGraphs({popoutOpen, onClose, onRename, onLoad}) {
         let updatedUserGraphs = userGraphs.filter((graph) => graph._id !== graphId);
         setUserGraphs(updatedUserGraphs);
 
+        const currentCanvas = getCanvasState();
+        
+        if (graphId === currentCanvas.graphId) {
+
+            setCanvasState(null, currentCanvas.data);
+        }
     }
+
+
 
             
     return (
@@ -111,8 +179,8 @@ function MyGraphs({popoutOpen, onClose, onRename, onLoad}) {
                                     {graph.title}
                                 </div>
                                 <div className="thumbnail-actions">
-                                    <button onClick={() => onLoad(graph._id)}>Load</button>
-                                    <button onClick={() => onRename(graph._id)}>Rename</button>
+                                    <button onClick={() => handleLoad(graph._id)}>Load</button>
+                                    <button onClick={() => handleCopy(graph._id)}>Copy</button>
                                     <button onClick={() => handleDelete(graph._id)}>Delete</button>
                                 </div>
                             </div>

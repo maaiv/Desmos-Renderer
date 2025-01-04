@@ -1,8 +1,10 @@
 import './header.css'
 import { FaRegUserCircle } from "react-icons/fa";
+import { useState } from 'react';
 import Account from "./account/account.jsx"
 import SaveButton from "./saveButton/saveButton.jsx";
 function Header() {
+
 
     return (
         <header className='component-header'>
@@ -12,7 +14,7 @@ function Header() {
                     <Account/>
                 </div>
 
-                <SaveButton/>
+                <SaveButton />
             </div>
 
 
