@@ -28,7 +28,7 @@
     transform: translateY(0px);
     scale: 1; 
 
-    transition: transform ease 0.8s, scale ease 0.8s, background-color ease 0.8s;
+    transition: transform ease var(--duration), scale ease var(--duration), background-color ease var(--duration);
 }
 
 .theme-button-light.active {
@@ -59,23 +59,24 @@
 .theme-button-light::after {
     left: 64%;
     top: 1px;
-        color: rgba(var(--text-colour), 1);
+    color: rgba(var(--text-colour), 1);
     content: "✦";
     font-size: small;
+
 }
 
 .theme-button-light::before, .theme-button-light::after {
     position: absolute;
     opacity: 1;
     scale: 1;
-    transition: all ease 0.8s;
+
+    transition: all ease var(--duration);
 }
 
 
 
 .theme-button-light.active::before, .theme-button-light.active::after {
-    opacity: 0;
-    transition: all ease 0.8s;
+    transition: all ease var(--duration);
     scale: 0.5; 
 }
 
@@ -97,14 +98,14 @@
     transform: translateY(0px);
     scale: 1;      
 
-    transition: transform ease 0.8s, scale ease 0.8s, background-color ease 0.8s, border-color ease 0.8s;
+    transition: transform ease var(--duration), scale ease var(--duration), background-color ease var(--duration), border-color ease var(--duration);
 }
 
 .theme-button-dark.active {
     transform: translateY(50px); 
     scale: 0.5;  
-    background: rgba(var(--text-colour), 0);
-    border-color: rgba(var(--background-colour), 0);;
+    background: rgba(var(--text-colour), 1);
+    border-color: rgba(var(--background-colour), 1);;
 }
 
 
@@ -121,7 +122,7 @@
     position: absolute;
     opacity: 1;
     scale: 1;
-    transition: all ease 0.8s;
+    transition: all ease var(--duration);
 ;
 }
 
@@ -131,7 +132,6 @@
 }
 
 .theme-button-dark.active::before, .theme-button-dark.active::after {
-    opacity: 0;
-    transition: all ease 0.8s;
+    transition: all ease var(--duration);
     scale: 0.5; 
 }

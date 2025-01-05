@@ -19,7 +19,8 @@ body {
     --background-colour: 43, 40, 44;
     --background-colour2: 58, 53, 59;
     --text-colour: 221, 221, 221;
-    --theme-transition: border-color 0.5s ease, background-color 0.5s ease, color 0.5s ease;
+    --duration: 1s;
+    --theme-transition: border-color var(--duration) ease, background-color var(--duration) ease, color var(--duration) ease;
 
     /* --accent-colour: rgb(174, 0, 255);
     --accent-colour2: rgb(147, 18, 207);
