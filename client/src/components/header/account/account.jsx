@@ -11,7 +11,7 @@ import MyGraphs from "./myGraphs/myGraphs";
 function Account() {
     // State to control the dropdown visibility
 
-    const { setUserId, userGraphs, setUserGraphs } = useAccountContext();
+    const { userId, setUserId, userGraphs, setUserGraphs } = useAccountContext();
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -69,8 +69,8 @@ function Account() {
     }
 
     // Returns an array containing all the current user's graphs
-    async function getGraphs(userId) {
-        const response = await fetch(db + `/graphs/userid/${userId}`);
+    async function getGraphs(id) {
+        const response = await fetch(db + `/graphs/userid/${id}`);
         
         if (!response.ok) {
             const message = `An error occurred: ${response.statusText}`;
@@ -152,9 +152,9 @@ function Account() {
                     <button className="login-button" onClick={() => logout({ logoutParams: { returnTo: redirectUri } })}>
                         Log Out
                     </button> 
-                    <button className="login-button" onClick={() => {setIsPopoutOpen(!isPopoutOpen)}}>
+                    {userId !== null && (<button className="login-button" onClick={() => {setIsPopoutOpen(!isPopoutOpen)}}>
                         My Graphs
-                    </button> 
+                    </button>) }
                 </>)}
             </div>
 

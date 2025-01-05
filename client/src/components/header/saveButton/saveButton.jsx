@@ -150,7 +150,7 @@ function SaveButton() {
 
     return (
         <>
-            { isAuthenticated && (<>
+            { userId !== null && (<>
                 
                 <button className="save-button" onClick={()=>{setIsPopupOpen(true)}}>
                     Save Graph
