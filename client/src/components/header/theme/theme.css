@@ -34,7 +34,7 @@
 .theme-button-light.active {
     transform: translateY(50px); 
     scale: 0.5;  
-    background: rgba(var(--text-colour), 0);
+    background: rgba(var(--text-colour), 1);
 }
 
 
@@ -103,7 +103,7 @@
 
 .theme-button-dark.active {
     transform: translateY(50px); 
-    scale: 0.5;  
+    scale: 0.5; 
     background: rgba(var(--text-colour), 1);
     border-color: rgba(var(--background-colour), 1);;
 }

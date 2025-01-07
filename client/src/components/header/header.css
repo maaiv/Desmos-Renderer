@@ -18,6 +18,7 @@
 
 .header-title {
     font-size: larger;
+    transition: var(--theme-transition);
     color: rgb(var(--text-colour));
 }
 
