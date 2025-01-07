@@ -182,7 +182,9 @@ function SaveButton() {
             
             </>)}
 
-    
+            { (isAuthenticated && userId === null) && (<p >
+                Loading...
+                </p>)}
         </>
   )
 }

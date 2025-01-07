@@ -155,6 +155,9 @@ function Account() {
                     {userId !== null && (<button className="login-button" onClick={() => {setIsPopoutOpen(!isPopoutOpen)}}>
                         My Graphs
                     </button>) }
+                    {(isAuthenticated && userId === null) && (<div >
+                        Loading...
+                    </div>) }
                 </>)}
             </div>
 
