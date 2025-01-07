@@ -51,7 +51,8 @@ body {
 
 
 button {
-    transition: var(--theme-transition);
+    transition: color var(--duration) ease;
+    ;
 }
 
 #root {
